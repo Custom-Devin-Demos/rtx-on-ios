@@ -95,6 +95,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.devindemos.nvidia.rtxon.tests
+        GENERATE_INFOPLIST_FILE: YES
 schemes:
   RTXOn:
     build:
