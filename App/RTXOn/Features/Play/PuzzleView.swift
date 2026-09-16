@@ -5,6 +5,7 @@ struct PuzzleView: View {
     @Environment(AppState.self) private var appState
     @State private var model: PuzzleViewModel
     @State private var showSolved = false
+    @State private var advanceOnDismiss = false
     @State private var confirmSolution = false
 
     init(level: Level) {
@@ -42,10 +43,14 @@ struct PuzzleView: View {
                 showSolved = true
             }
         }
-        .sheet(isPresented: $showSolved) {
+        .sheet(isPresented: $showSolved, onDismiss: {
+            guard advanceOnDismiss else { return }
+            advanceOnDismiss = false
+            appState.advance(from: level)
+        }) {
             SolvedSheet(level: level, placements: model.placements, trace: model.trace) {
+                advanceOnDismiss = true
                 showSolved = false
-                appState.advance(from: level)
             }
             .presentationDetents([.medium, .large])
             .presentationBackground(Theme.surface)
