@@ -1,0 +1,38 @@
+# https://docs.devin.ai/onboard-devin/environment-yaml
+# Linux: only Core/ (Swift package RTXOnCore) builds here; the iOS app needs the macOS block below.
+initialize: |
+  mkdir -p $HOME/toolchains
+  if [ ! -x $HOME/toolchains/swift-6.1-RELEASE-ubuntu22.04/usr/bin/swift ]; then
+    curl -fsSL https://download.swift.org/swift-6.1-release/ubuntu2204/swift-6.1-RELEASE/swift-6.1-RELEASE-ubuntu22.04.tar.gz | tar -xz -C $HOME/toolchains
+  fi
+  echo "PATH=$HOME/toolchains/swift-6.1-RELEASE-ubuntu22.04/usr/bin:$PATH" >> $ENVRC
+# Warm the SwiftPM build cache for the core package.
+maintenance: |
+  (cd Core && swift build --build-tests)
+knowledge:
+  - name: test
+    contents: |
+      cd Core && swift test
+  - name: notes
+    contents: |
+      iOS app build/simulator verification requires a macOS session: scripts/bootstrap-macos.sh then scripts/verify-ios.sh (RECORD=1 to record).
+---
+runs-on: macos
+# Xcode with the iOS Simulator runtime is expected to be preinstalled.
+initialize: |
+  brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+  xcodebuild -downloadComponent MetalToolchain
+maintenance: |
+  scripts/bootstrap-macos.sh
+knowledge:
+  - name: test
+    contents: |
+      (cd Core && swift test)
+      SKIP_TESTS=1 scripts/verify-ios.sh   # build + install + launch only
+  - name: verify
+    contents: |
+      scripts/verify-ios.sh                # build app+widget, run RTXOnTests, launch, artifacts/launch.png
+      RECORD=1 scripts/verify-ios.sh       # also records artifacts/ios-run.mp4
+  - name: notes
+    contents: |
+      If xcodebuild says "iOS <ver> is not installed" while simctl lists the runtime, delete ~/Library/Developer/Xcode/SDKToSimulatorIndexMapping.plist and retry.

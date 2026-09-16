@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  core-linux:
+    name: Core package (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.1
+    steps:
+      - uses: actions/checkout@v4
+      - name: swift test
+        working-directory: Core
+        run: swift test
+
+  ios:
+    name: iOS app (macOS, Xcode)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          xcrun simctl list runtimes available
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        run: scripts/bootstrap-macos.sh
+      - name: Build and test on iPhone simulator
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]
+          ios=sorted([rt for rt in d if "iOS" in rt], reverse=True)
+          print(next(x["udid"] for rt in ios for x in d[rt] if x["name"].startswith("iPhone")))')
+          echo "Simulator: $UDID"
+          mkdir -p artifacts
+          xcodebuild -project App/RTXOn.xcodeproj -scheme RTXOn \
+            -destination "platform=iOS Simulator,id=$UDID" \
+            -derivedDataPath build/DerivedData \
+            -resultBundlePath artifacts/RTXOnTests.xcresult \
+            test 2>&1 | tee artifacts/xcodebuild-test.log | grep -E "Test Case|error:|\*\* TEST|Executed" || true
+          grep -q "TEST SUCCEEDED" artifacts/xcodebuild-test.log || { echo "::error::xcodebuild test did not succeed"; tail -n 80 artifacts/xcodebuild-test.log; exit 1; }
+      - name: Verify tests passed
+        run: |
+          xcrun xcresulttool get test-results summary --path artifacts/RTXOnTests.xcresult > artifacts/summary.json
+          python3 -c 'import json; s=json.load(open("artifacts/summary.json")); print(s); assert s["failedTests"]==0 and s["passedTests"]>0'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-test-results
+          path: artifacts
