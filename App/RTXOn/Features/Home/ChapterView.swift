@@ -34,7 +34,7 @@ struct ChapterView: View {
 
 struct LevelRow: View {
     let level: Level
-    let result: Progress.Result?
+    let result: RTXOnCore.Progress.Result?
 
     var body: some View {
         NavigationLink(value: Route.level(level.id)) {

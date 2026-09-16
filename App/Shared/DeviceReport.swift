@@ -3,7 +3,7 @@ import RTXOnCore
 
 extension SMIReport {
     /// Reads the live device state and the player's progress.
-    static func capture(progress: Progress, now: Date = Date()) -> SMIReport {
+    static func capture(progress: RTXOnCore.Progress, now: Date = Date()) -> SMIReport {
         let info = ProcessInfo.processInfo
         let day = Daily.dayNumber(for: now)
         let v = info.operatingSystemVersion

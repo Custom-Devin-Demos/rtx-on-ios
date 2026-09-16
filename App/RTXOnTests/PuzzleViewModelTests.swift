@@ -56,7 +56,7 @@ final class PuzzleViewModelTests: XCTestCase {
     }
 
     func testAppStateRecordsAndAdvances() {
-        let state = AppState(progress: Progress())
+        let state = AppState(progress: RTXOnCore.Progress())
         state.path = [.level("fermi-1")]
         state.recordSolve(level: level, pieces: 1, bounces: 1)
         XCTAssertTrue(state.progress.isComplete(level))

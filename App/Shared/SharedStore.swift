@@ -12,15 +12,15 @@ enum SharedStore {
         UserDefaults(suiteName: appGroup) ?? .standard
     }
 
-    static func loadProgress() -> Progress {
+    static func loadProgress() -> RTXOnCore.Progress {
         guard let data = defaults.data(forKey: progressKey),
-              let progress = try? JSONDecoder().decode(Progress.self, from: data) else {
-            return Progress()
+              let progress = try? JSONDecoder().decode(RTXOnCore.Progress.self, from: data) else {
+            return RTXOnCore.Progress()
         }
         return progress
     }
 
-    static func save(_ progress: Progress) {
+    static func save(_ progress: RTXOnCore.Progress) {
         if let data = try? JSONEncoder().encode(progress) {
             defaults.set(data, forKey: progressKey)
         }
