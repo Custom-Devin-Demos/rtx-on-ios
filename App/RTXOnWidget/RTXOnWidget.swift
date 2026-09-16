@@ -16,7 +16,7 @@ struct SMIEntry: TimelineEntry {
 
 struct SMIProvider: TimelineProvider {
     func placeholder(in context: Context) -> SMIEntry {
-        SMIEntry(date: Date(), report: SMIReport.capture(progress: Progress()))
+        SMIEntry(date: Date(), report: SMIReport.capture(progress: RTXOnCore.Progress()))
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SMIEntry) -> Void) {

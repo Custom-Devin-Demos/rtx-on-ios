@@ -45,7 +45,7 @@ DEST="platform=iOS Simulator,id=$UDID"
 echo "==> Building"
 xcodebuild -project "$PROJECT" -scheme "$SCHEME" -configuration Debug \
   -destination "$DEST" -derivedDataPath "$DERIVED" \
-  CODE_SIGNING_ALLOWED=NO build 2>&1 | tee "$ARTIFACTS/xcodebuild-build.log" | grep -E "error:|\*\* BUILD" || true
+  build 2>&1 | tee "$ARTIFACTS/xcodebuild-build.log" | grep -E "error:|\*\* BUILD" || true
 grep -q "BUILD SUCCEEDED" "$ARTIFACTS/xcodebuild-build.log"
 
 if [ -z "${SKIP_TESTS:-}" ]; then
@@ -54,7 +54,7 @@ if [ -z "${SKIP_TESTS:-}" ]; then
   xcodebuild -project "$PROJECT" -scheme "$SCHEME" -configuration Debug \
     -destination "$DEST" -derivedDataPath "$DERIVED" \
     -resultBundlePath "$ARTIFACTS/RTXOnTests.xcresult" \
-    CODE_SIGNING_ALLOWED=NO test 2>&1 | tee "$ARTIFACTS/xcodebuild-test.log" | grep -E "Test Case|error:|\*\* TEST|Executed" || true
+    test 2>&1 | tee "$ARTIFACTS/xcodebuild-test.log" | grep -E "Test Case|error:|\*\* TEST|Executed" || true
   grep -q "TEST SUCCEEDED" "$ARTIFACTS/xcodebuild-test.log"
 fi
 

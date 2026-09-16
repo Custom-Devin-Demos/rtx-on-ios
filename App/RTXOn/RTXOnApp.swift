@@ -28,9 +28,11 @@ struct RootView: View {
                     case .level(let id):
                         if let level = LevelPack.level(id: id) {
                             PuzzleView(level: level)
+                                .id(level.id)
                         }
                     case .daily(let day):
                         PuzzleView(level: Daily.level(day: day))
+                            .id(day)
                     case .smi:
                         SMIView()
                     case .about:

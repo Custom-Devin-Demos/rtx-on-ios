@@ -7,14 +7,14 @@ import WidgetKit
 @MainActor
 final class AppState {
     var path: [Route] = []
-    private(set) var progress: Progress
+    private(set) var progress: RTXOnCore.Progress
     /// Injected progress (tests, previews) is never written to disk.
     private let persists: Bool
     var rtxEnabled: Bool {
         didSet { if persists { SharedStore.defaults.set(rtxEnabled, forKey: SharedStore.rtxEnabledKey) } }
     }
 
-    init(progress: Progress? = nil) {
+    init(progress: RTXOnCore.Progress? = nil) {
         persists = progress == nil
         self.progress = progress ?? SharedStore.loadProgress()
         rtxEnabled = SharedStore.defaults.object(forKey: SharedStore.rtxEnabledKey) as? Bool ?? true
@@ -32,7 +32,7 @@ final class AppState {
     }
 
     func resetProgress() {
-        progress = Progress()
+        progress = RTXOnCore.Progress()
         persist()
     }
 
